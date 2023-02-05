@@ -9,6 +9,7 @@ namespace VegasScriptSetJimakuColor
 {
     public class EntryPoint: IEntryPoint
     {
+        private SettingForm settingForm = null;
         public void FromVegas(Vegas vegas)
         {
             VegasScriptSettings.Load();
@@ -25,24 +26,23 @@ namespace VegasScriptSetJimakuColor
 
             VideoTrack selected = helper.SelectedVideoTrack(false);
 
-            SettingForm dialog = new SettingForm()
-            {
-                TargetVideoTrackDataSource = trackNames,
-                TargetVideoTrack = selected != null ? helper.GetTrackKey(selected) : trackNames[0],
-                JimakuColor = VegasScriptSettings.JimakuColor,
-                OutlineColor = VegasScriptSettings.OutlineColor,
-                OutlineWidth = VegasScriptSettings.JimakuOutlineWidth,
-            };
+            if(settingForm == null) { settingForm = new SettingForm(); }
 
-            if(dialog.ShowDialog() == DialogResult.Cancel) { return; }
+            settingForm.TargetVideoTrackDataSource = trackNames;
+            settingForm.TargetVideoTrack = selected != null ? helper.GetTrackKey(selected) : trackNames[0];
+            settingForm.JimakuColor = VegasScriptSettings.JimakuColor;
+            settingForm.OutlineColor = VegasScriptSettings.OutlineColor;
+            settingForm.OutlineWidth = VegasScriptSettings.JimakuOutlineWidth;
+
+            if(settingForm.ShowDialog() == DialogResult.Cancel) { return; }
 
             try
             {
                 helper.SetTextParameterInTrack(
-                    trackDict[dialog.TargetVideoTrack],
-                    dialog.JimakuColor,
-                    dialog.OutlineColor,
-                    dialog.OutlineWidth
+                    trackDict[settingForm.TargetVideoTrack],
+                    settingForm.JimakuColor,
+                    settingForm.OutlineColor,
+                    settingForm.OutlineWidth
                     );
 
             }
@@ -51,9 +51,9 @@ namespace VegasScriptSetJimakuColor
                 MessageBox.Show("選択したトラックにイベントがありません。");
             }
 
-            VegasScriptSettings.JimakuColor = dialog.JimakuColor;
-            VegasScriptSettings.OutlineColor = dialog.OutlineColor;
-            VegasScriptSettings.JimakuOutlineWidth = dialog.OutlineWidth;
+            VegasScriptSettings.JimakuColor = settingForm.JimakuColor;
+            VegasScriptSettings.OutlineColor = settingForm.OutlineColor;
+            VegasScriptSettings.JimakuOutlineWidth = settingForm.OutlineWidth;
             VegasScriptSettings.Save();
         }
     }
